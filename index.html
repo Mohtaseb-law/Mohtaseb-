@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>محتسب</title>
+<link rel="manifest" href="./manifest.json">
+<meta name="theme-color" content="#14171F">
+<link rel="icon" href="./icon-192.png">
+<link rel="apple-touch-icon" href="./icon-192.png">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&family=Lalezar&display=swap');
+
+  :root{
+    --paper:#14171F;
+    --paper-dark:#1C2029;
+    --paper-darker:#20242E;
+    --ink:#EDE7DA;
+    --ink-soft:#9791A1;
+    --line:#2E323C;
+    --gold:#D4AF37;
+    --stamp:#E0574A;
+    --green:#4CAF6D;
+    --amber:#D9A441;
+    --red:#E0574A;
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      radial-gradient(1000px 500px at 15% -10%, #1B2030 0%, transparent 60%),
+      var(--paper);
+    color:var(--ink);
+    font-family:'Vazirmatn', sans-serif;
+    min-height:100vh;
+    padding:20px 14px 60px;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  .page{
+    max-width:460px;
+    margin:0 auto;
+  }
+
+  header{
+    text-align:center;
+    margin-bottom:22px;
+  }
+
+  header .eyebrow{
+    font-size:12px;
+    letter-spacing:.12em;
+    color:var(--ink-soft);
+    margin-bottom:4px;
+  }
+
+  header h1{
+    font-family:'Lalezar', 'Vazirmatn', sans-serif;
+    font-weight:400;
+    font-size:34px;
+    color:var(--ink);
+    margin:0;
+    letter-spacing:.02em;
+  }
+
+  header p{
+    font-size:13px;
+    color:var(--ink-soft);
+    margin:6px 0 0;
+  }
+
+  .card{
+    background:var(--paper-dark);
+    border:1px solid var(--line);
+    border-radius:14px;
+    padding:16px 14px 14px;
+    box-shadow:0 1px 0 rgba(0,0,0,0.2), 0 8px 24px -14px rgba(0,0,0,0.6);
+  }
+
+  .ledger-head{
+    display:grid;
+    grid-template-columns:1fr 62px 62px 30px;
+    gap:8px;
+    padding:0 4px 8px;
+    font-size:11px;
+    color:var(--ink-soft);
+    border-bottom:1px dashed var(--line);
+    margin-bottom:6px;
+  }
+
+  .row{
+    display:grid;
+    grid-template-columns:1fr 62px 62px 30px;
+    gap:8px;
+    align-items:center;
+    padding:7px 4px;
+    border-bottom:1px dotted var(--line);
+  }
+  .row:last-of-type{border-bottom:none;}
+
+  .row input{
+    width:100%;
+    background:transparent;
+    border:none;
+    border-bottom:1px solid transparent;
+    font-family:'Vazirmatn', sans-serif;
+    font-size:14px;
+    color:var(--ink);
+    padding:4px 2px;
+    outline:none;
+    text-align:center;
+  }
+  .row input[type="text"]{text-align:right;}
+  .row input:focus{border-bottom:1px solid var(--gold);}
+  .row input::placeholder{color:#5B5F6B;}
+
+  .del-btn{
+    width:26px;height:26px;
+    border:none;
+    background:transparent;
+    color:#5B5F6B;
+    font-size:16px;
+    cursor:pointer;
+    border-radius:50%;
+    line-height:1;
+    display:flex;align-items:center;justify-content:center;
+    transition:color .15s, background .15s;
+  }
+  .del-btn:hover{color:var(--red); background:rgba(224,87,74,0.12);}
+
+  .add-row{
+    width:100%;
+    margin-top:10px;
+    padding:10px;
+    border:1px dashed #3A3F4C;
+    background:transparent;
+    border-radius:10px;
+    color:var(--ink-soft);
+    font-family:'Vazirmatn', sans-serif;
+    font-size:13px;
+    cursor:pointer;
+    transition:border-color .15s, color .15s;
+  }
+  .add-row:hover{border-color:var(--gold); color:var(--gold);}
+
+  .empty-hint{
+    text-align:center;
+    color:var(--ink-soft);
+    font-size:13px;
+    padding:18px 6px 8px;
+  }
+
+  .result-section{
+    margin-top:26px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    text-align:center;
+  }
+
+  .stamp{
+    width:150px;height:150px;
+    border-radius:50%;
+    border:2.5px solid var(--stamp-c, var(--stamp));
+    outline:1px solid var(--stamp-c, var(--stamp));
+    outline-offset:5px;
+    color:var(--stamp-c, var(--stamp));
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    transform:rotate(-6deg);
+    opacity:.92;
+    margin-bottom:22px;
+    animation:stampIn .6s cubic-bezier(.2,.8,.3,1.1);
+  }
+  @keyframes stampIn{
+    from{opacity:0; transform:rotate(-6deg) scale(1.7);}
+    to{opacity:.92; transform:rotate(-6deg) scale(1);}
+  }
+
+  .stamp .label{
+    font-family:'Lalezar', sans-serif;
+    font-size:13px;
+    letter-spacing:.06em;
+    margin-bottom:2px;
+  }
+  .stamp .value{
+    font-family:'Lalezar', sans-serif;
+    font-size:40px;
+    line-height:1;
+  }
+  .stamp .scale{
+    font-size:10px;
+    color:var(--stamp-c, var(--stamp));
+    opacity:.85;
+    margin-top:2px;
+  }
+
+  .verdict{
+    font-family:'Lalezar', sans-serif;
+    font-size:19px;
+    color:var(--stamp-c, var(--stamp));
+    margin-bottom:14px;
+    padding:0 20px;
+  }
+
+  .progress-track{
+    width:100%;
+    max-width:260px;
+    height:6px;
+    background:#2A2E38;
+    border-radius:4px;
+    overflow:hidden;
+    margin-bottom:6px;
+  }
+  .progress-fill{
+    height:100%;
+    width:0%;
+    background:var(--stamp-c, var(--stamp));
+    border-radius:4px;
+    transition:width .4s ease, background .3s ease;
+  }
+
+  .units-note{
+    font-size:11px;
+    color:var(--ink-soft);
+    margin-bottom:18px;
+  }
+
+  .save-history-btn{
+    padding:10px 22px;
+    border:1px solid var(--gold);
+    background:rgba(212,175,55,0.08);
+    color:var(--gold);
+    font-family:'Vazirmatn', sans-serif;
+    font-size:13px;
+    font-weight:600;
+    border-radius:10px;
+    cursor:pointer;
+    transition:background .15s;
+  }
+  .save-history-btn:hover{background:rgba(212,175,55,0.16);}
+  .save-history-btn:disabled{
+    opacity:.4;
+    cursor:not-allowed;
+  }
+
+  .history-section{
+    margin-top:30px;
+  }
+
+  .history-head{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:10px;
+    padding:0 2px;
+  }
+
+  .history-head .eyebrow{
+    font-size:12px;
+    letter-spacing:.1em;
+    color:var(--ink-soft);
+  }
+
+  .clear-history{
+    background:transparent;
+    border:none;
+    color:var(--ink-soft);
+    font-size:11px;
+    cursor:pointer;
+    text-decoration:underline;
+    padding:2px;
+  }
+  .clear-history:hover{color:var(--red);}
+
+  .history-empty{
+    text-align:center;
+    color:var(--ink-soft);
+    font-size:12px;
+    padding:16px 6px;
+    border:1px dashed var(--line);
+    border-radius:12px;
+  }
+
+  .history-list{
+    display:flex;
+    flex-direction:column;
+  }
+
+  .history-item{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:10px 4px;
+    border-bottom:1px dotted var(--line);
+  }
+  .history-item:last-child{border-bottom:none;}
+
+  .history-item .h-date{
+    font-size:11px;
+    color:var(--ink-soft);
+  }
+
+  .history-item .h-mid{
+    font-size:11px;
+    color:var(--ink-soft);
+  }
+
+  .history-item .h-value{
+    font-family:'Lalezar', sans-serif;
+    font-size:18px;
+  }
+
+  .history-del{
+    background:transparent;
+    border:none;
+    color:#5B5F6B;
+    font-size:14px;
+    cursor:pointer;
+    padding:2px 6px;
+  }
+  .history-del:hover{color:var(--red);}
+
+  footer{
+    text-align:center;
+    font-size:11px;
+    color:#5B5F6B;
+    margin-top:30px;
+    line-height:1.9;
+  }
+</style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <div class="eyebrow">دفتر نمرات</div>
+      <h1>محتسب</h1>
+      <p>نمره و واحد هر درس را وارد کنید تا معدل کل محاسبه شود</p>
+    </header>
+
+    <div class="card">
+      <div class="ledger-head" id="ledgerHead">
+        <span>نام درس</span>
+        <span>نمره</span>
+        <span>واحد</span>
+        <span></span>
+      </div>
+      <div id="rows"></div>
+      <div id="emptyHint" class="empty-hint" style="display:none;">هنوز درسی اضافه نکرده‌اید — یک درس اضافه کنید</div>
+      <button class="add-row" id="addRow">+ افزودن درس</button>
+    </div>
+
+    <div class="result-section">
+      <div class="stamp" id="stamp">
+        <div class="label">معدل کل</div>
+        <div class="value" id="gpaValue">۰٫۰۰</div>
+        <div class="scale">از ۲۰</div>
+      </div>
+      <div class="verdict" id="verdict">—</div>
+      <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+      <div class="units-note" id="unitsNote">مجموع واحدها: ۰</div>
+      <button class="save-history-btn" id="saveHistory">ثبت در تاریخچه</button>
+    </div>
+
+    <div class="history-section">
+      <div class="history-head">
+        <span class="eyebrow">تاریخچه معدل‌گیری</span>
+        <button class="clear-history" id="clearHistory">پاک‌کردن همه</button>
+      </div>
+      <div id="historyEmpty" class="history-empty">هنوز چیزی ثبت نشده — بعد از وارد کردن نمرات، دکمه‌ی «ثبت در تاریخچه» را بزنید</div>
+      <div id="historyList" class="history-list"></div>
+    </div>
+
+    <footer>
+      محاسبه به روش وزنی: مجموع (نمره × واحد) ÷ مجموع واحدها<br>
+      Made by : محمد علی محمدی
+    </footer>
+  </div>
+
+<script>
+  const STORAGE_KEY = 'gpa-courses';
+  const HISTORY_KEY = 'gpa-history';
+  let courses = [];
+  let history = [];
+  let saveTimer = null;
+
+  const faDigits = ['۰','۱','۲','۳','۴','۵','۶','۷','۸','۹'];
+  function toFa(input){
+    return String(input).replace(/[0-9]/g, d => faDigits[d]);
+  }
+  function toFaDecimal(num){
+    return toFa(num).replace('.', '٫');
+  }
+
+  function defaultCourses(){
+    return [{ name:'', grade:'', units:'' }];
+  }
+
+  async function loadCourses(){
+    try{
+      const result = await window.storage.get(STORAGE_KEY, false);
+      if(result && result.value){
+        const parsed = JSON.parse(result.value);
+        if(Array.isArray(parsed) && parsed.length){
+          courses = parsed;
+          render();
+          return;
+        }
+      }
+    }catch(e){ /* no saved data or storage unavailable */ }
+    courses = defaultCourses();
+    render();
+  }
+
+  async function loadHistory(){
+    try{
+      const result = await window.storage.get(HISTORY_KEY, false);
+      if(result && result.value){
+        const parsed = JSON.parse(result.value);
+        if(Array.isArray(parsed)){
+          history = parsed;
+        }
+      }
+    }catch(e){ /* no saved history yet */ }
+    renderHistory();
+  }
+
+  function scheduleSave(){
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(async () => {
+      try{
+        await window.storage.set(STORAGE_KEY, JSON.stringify(courses), false);
+      }catch(e){ /* storage unavailable, ignore */ }
+    }, 400);
+  }
+
+  async function saveHistory(){
+    try{
+      await window.storage.set(HISTORY_KEY, JSON.stringify(history), false);
+    }catch(e){ /* storage unavailable, ignore */ }
+  }
+
+  function addRow(){
+    courses.push({ name:'', grade:'', units:'' });
+    render();
+    scheduleSave();
+  }
+
+  function removeRow(idx){
+    courses.splice(idx, 1);
+    if(courses.length === 0) courses = defaultCourses();
+    render();
+    scheduleSave();
+  }
+
+  function updateField(idx, field, value){
+    courses[idx][field] = value;
+    render(true);
+    scheduleSave();
+  }
+
+  function render(skipRowRebuild){
+    const rowsEl = document.getElementById('rows');
+    const emptyHint = document.getElementById('emptyHint');
+    const head = document.getElementById('ledgerHead');
+
+    head.style.display = 'grid';
+    emptyHint.style.display = 'none';
+
+    if(!skipRowRebuild){
+      rowsEl.innerHTML = '';
+      courses.forEach((c, idx) => {
+        const row = document.createElement('div');
+        row.className = 'row';
+        row.innerHTML = `
+          <input type="text" placeholder="مثلاً مدنی ۱" value="${escapeHtml(c.name)}" data-idx="${idx}" data-field="name" />
+          <input type="number" step="0.01" min="0" max="20" placeholder="۰-۲۰" value="${c.grade}" data-idx="${idx}" data-field="grade" />
+          <input type="number" step="0.5" min="0" placeholder="واحد" value="${c.units}" data-idx="${idx}" data-field="units" />
+          <button class="del-btn" data-idx="${idx}" title="حذف درس">×</button>
+        `;
+        rowsEl.appendChild(row);
+      });
+
+      rowsEl.querySelectorAll('input').forEach(inp => {
+        inp.addEventListener('input', e => {
+          const idx = +e.target.dataset.idx;
+          const field = e.target.dataset.field;
+          updateField(idx, field, e.target.value);
+        });
+      });
+      rowsEl.querySelectorAll('.del-btn').forEach(btn => {
+        btn.addEventListener('click', e => {
+          removeRow(+e.target.dataset.idx);
+        });
+      });
+    }
+
+    computeResult();
+  }
+
+  function escapeHtml(str){
+    return String(str).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+  }
+
+  let lastAvg = 0;
+  let lastUnitSum = 0;
+
+  function computeResult(){
+    let weightedSum = 0;
+    let unitSum = 0;
+    courses.forEach(c => {
+      const grade = parseFloat(c.grade);
+      const units = parseFloat(c.units);
+      if(!isNaN(grade) && !isNaN(units) && units > 0){
+        weightedSum += grade * units;
+        unitSum += units;
+      }
+    });
+
+    const avg = unitSum > 0 ? (weightedSum / unitSum) : 0;
+    const avgStr = avg.toFixed(2);
+    lastAvg = avg;
+    lastUnitSum = unitSum;
+
+    document.getElementById('gpaValue').textContent = toFaDecimal(avgStr);
+    document.getElementById('unitsNote').textContent = 'مجموع واحدها: ' + toFa(unitSum);
+
+    const fill = document.getElementById('progressFill');
+    const stamp = document.getElementById('stamp');
+    const verdict = document.getElementById('verdict');
+    const saveBtn = document.getElementById('saveHistory');
+
+    let color, label;
+    if(unitSum === 0){
+      color = '#6B6F7A'; label = 'منتظر ورود نمرات';
+    } else if(avg >= 17){
+      color = 'var(--green)'; label = 'معدل الفی چه حسی داره ؟';
+    } else if(avg >= 12){
+      color = 'var(--amber)'; label = 'این ترم نشد ایشالا ترم بعد';
+    } else {
+      color = 'var(--red)'; label = 'this is the end...';
+    }
+
+    stamp.style.setProperty('--stamp-c', color);
+    verdict.style.color = color;
+    verdict.textContent = label;
+    fill.style.width = Math.min(100, (avg/20)*100) + '%';
+    saveBtn.disabled = unitSum === 0;
+  }
+
+  function formatHistoryDate(iso){
+    const d = new Date(iso);
+    const datePart = d.toLocaleDateString('fa-IR', { year:'numeric', month:'2-digit', day:'2-digit' });
+    const timePart = d.toLocaleTimeString('fa-IR', { hour:'2-digit', minute:'2-digit' });
+    return datePart + ' - ' + timePart;
+  }
+
+  function renderHistory(){
+    const list = document.getElementById('historyList');
+    const empty = document.getElementById('historyEmpty');
+
+    if(history.length === 0){
+      empty.style.display = 'block';
+      list.innerHTML = '';
+      return;
+    }
+    empty.style.display = 'none';
+
+    list.innerHTML = '';
+    history.slice().reverse().forEach((h) => {
+      const realIdx = history.indexOf(h);
+      const item = document.createElement('div');
+      item.className = 'history-item';
+      item.innerHTML = `
+        <button class="history-del" data-idx="${realIdx}" title="حذف">×</button>
+        <span class="h-mid">${toFa(h.units)} واحد</span>
+        <span class="h-value" style="color:${h.color}">${toFaDecimal(h.avg.toFixed(2))}</span>
+        <span class="h-date">${formatHistoryDate(h.date)}</span>
+      `;
+      list.appendChild(item);
+    });
+
+    list.querySelectorAll('.history-del').forEach(btn => {
+      btn.addEventListener('click', e => {
+        const idx = +e.target.dataset.idx;
+        history.splice(idx, 1);
+        renderHistory();
+        saveHistory();
+      });
+    });
+  }
+
+  document.getElementById('addRow').addEventListener('click', addRow);
+
+  document.getElementById('saveHistory').addEventListener('click', () => {
+    if(lastUnitSum === 0) return;
+    const stampColor = getComputedStyle(document.getElementById('stamp')).getPropertyValue('--stamp-c').trim() || '#E0574A';
+    history.push({
+      date: new Date().toISOString(),
+      avg: lastAvg,
+      units: lastUnitSum,
+      color: stampColor
+    });
+    renderHistory();
+    saveHistory();
+  });
+
+  document.getElementById('clearHistory').addEventListener('click', () => {
+    if(history.length === 0) return;
+    history = [];
+    renderHistory();
+    saveHistory();
+  });
+
+  loadCourses();
+  loadHistory();
+
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./sw.js').catch(() => {});
+    });
+  }
+</script>
+</body>
+</html>
